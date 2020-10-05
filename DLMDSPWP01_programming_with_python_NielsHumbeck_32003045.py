@@ -132,7 +132,7 @@ def get_ideal_functions(df_train, df_ideal):
     mapping_criterion_dict = {}
     list_idealfct_dict = {}
     # Bokeh Output in jupyter notebook
-    #output_notebook() # remove # if charts are supposed not to be displayed in the browser
+    #output_notebook() # remove # if charts are supposed not to be displayed in the browse
 
     print("The ideal functions for each train function is:")
     for i_train in range(1, 5):

@@ -157,9 +157,13 @@ def get_ideal_functions(df_train, df_ideal):
         MinSSE = SSE_dict[nr_of_ideal_function]
         mapping_criterion_dict[i_train] = math.sqrt(2) * max_dev_dict[nr_of_ideal_function]
         name_y = "y" + str(nr_of_ideal_function)
-        p = figure()
-        p.line(df_train["x"], df_train[name_y_train], color='darkblue', line_width=2)
-        p.line(df_ideal["x"], df_ideal[name_y], color='peru', line_width=2)
+        p = figure(title="Mapping the ideal function ({}) to the train function ({})".format(name_y,name_y_train), toolbar_location="above",
+           plot_width=600, plot_height=300)
+
+        p.line(df_train["x"], df_train[name_y_train], color='darkblue', line_width=2, legend_label="Train function: " + name_y_train)
+        p.line(df_ideal["x"], df_ideal[name_y], color='peru', line_width=2, legend_label="Ideal function: " + name_y)
+        p.xaxis.axis_label = 'X'
+        p.yaxis.axis_label = 'X'
         show(p)
         list_idealfct_dict[i_train] = nr_of_ideal_function
         print("The chosen ideal function for the train function: " + str(name_y_train) + " is: " + str(

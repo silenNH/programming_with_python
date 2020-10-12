@@ -25,9 +25,12 @@ def circle_area(r):
 
 def create_database_dataframe():
     """
+    Task
     1)Read the needed CSV-files (train.csv, test.csv, ideal.csv) with a pandas framework
-    2)Create a database and crate and copy the read in csv-files into tables ("ideal_functions","train_functions","test_functions")
-    3)Create a working dataframework for each table in the database ("ideal_functions","train_functions","test_functions")
+    2)Create a database and crate and copy the read in csv-files into tables
+    -->("ideal_functions","train_functions","test_functions")
+    3)Create a working data framework for each table in the database
+    -->("ideal_functions","train_functions","test_functions")
 
     Input: train.csv, test.csv, ideal.csv in the current directionary
     Output: df_test, df_train, df_ideal
@@ -159,11 +162,11 @@ def get_ideal_functions(df_train, df_ideal):
         name_y = "y" + str(nr_of_ideal_function)
         p = figure(title="Mapping the ideal function ({}) to the train function ({})".format(name_y,name_y_train), toolbar_location="above",
            plot_width=600, plot_height=300)
-
+        #in jupyter notebook use legend instead of legend_label
         p.line(df_train["x"], df_train[name_y_train], color='darkblue', line_width=2, legend_label="Train function: " + name_y_train)
         p.line(df_ideal["x"], df_ideal[name_y], color='peru', line_width=2, legend_label="Ideal function: " + name_y)
         p.xaxis.axis_label = 'X'
-        p.yaxis.axis_label = 'X'
+        p.yaxis.axis_label = 'Y'
         show(p)
         list_idealfct_dict[i_train] = nr_of_ideal_function
         print("The chosen ideal function for the train function: " + str(name_y_train) + " is: " + str(
@@ -218,25 +221,46 @@ def apply_idealfct_to_testfct(df_test, df_ideal, list_idealfct_dict, mapping_cri
     # Creating dataframe for final resualts
     df_final_test_data = pd.DataFrame(np.nan, index=np.linspace(0, 99, 100),
                                       columns=["X (test func)", "Y (test func)", "Delta Y (test func)",
-                                               "No. of ideal func"])
+                                               "No_of_ideal_func"])
     df_final_test_data["X (test func)"] = df_test["x"]
     df_final_test_data["Y (test func)"] = df_test["y"]
-    df_final_test_data["No. of ideal func"] = df_final_test_data["No. of ideal func"].astype(str)
+    df_final_test_data["No_of_ideal_func"] = df_final_test_data["No_of_ideal_func"].astype(str)
 
     for i_test in range(0, count_test_row):
         for i_ideal in range(1, 5):
             name_idealfunction = "y" + str(list_idealfct_dict[i_ideal])
+            #print("The mapping criterion for the ideal function {} is: {}".format(name_idealfunction, mapping_criterion_dict[i_ideal]))
             x_value = df_test["x"][i_test]
 
             for x_idealcount in range(0, 400):
                 if x_value == df_ideal["x"][x_idealcount]:
                     Dev_Test_Ideal = abs(df_test["y"][i_test] - df_ideal[name_idealfunction][x_idealcount])
                     if Dev_Test_Ideal < mapping_criterion_dict[i_ideal]:
-                        df_final_test_data.loc[i_test, "No. of ideal func"] = name_idealfunction
+                        df_final_test_data.loc[i_test, "No_of_ideal_func"] = name_idealfunction
                         df_final_test_data.loc[i_test, "Delta Y (test func)"] = Dev_Test_Ideal
 
     print("The chosen ideal functions were maped to the test function recording the mapping criterion...")
 
+    # Draw the mapped chosen ideal funcion and the test dataset in a chart
+    p = figure(title="Mapping the chosen ideal function to the test dataset", toolbar_location="above",
+           plot_width=1200, plot_height=600)
+    p.circle(df_final_test_data["X (test func)"], df_final_test_data["Y (test func)"], color='deepskyblue', line_width=1, legend_label="Test data points")
+    for i_ideal in range(1,5):
+        name_idealfunction = "y" + str(list_idealfct_dict[i_ideal])
+        x_values=df_final_test_data.query('No_of_ideal_func == @name_idealfunction')["X (test func)"].tolist()
+        y_values=df_final_test_data.query('No_of_ideal_func == @name_idealfunction')["Y (test func)"].tolist()
+        if i_ideal==1:
+            c="lime"
+        if i_ideal==2:
+            c="mediumvioletred"
+        if i_ideal==3:
+            c="chocolate"
+        if i_ideal==4:
+            c="slategray"
+        p.circle(x=x_values, y=y_values, color=c, line_width=3, legend_label="Train function: " + name_idealfunction)
+    p.xaxis.axis_label = 'X'
+    p.yaxis.axis_label = 'Y'
+    show(p)
 
     table_name = "testdata_mapped_with_idealfct"
     engine = create_engine('sqlite:///Functions.db')
@@ -279,7 +303,8 @@ def main():
     The main function is running the programm in order to fulfill the given task
     """
 
-    # Read in the needed csv files, create a database with the corresponding tables and create working dataframes for furtherprocessing
+    # Read in the needed csv files, create a database with the corresponding tables
+    # and create working dataframes for further processing
     try:
         df_test, df_train, df_ideal = create_database_dataframe()
     except:
@@ -289,6 +314,7 @@ def main():
         pass
 
     # Identify the ideal functions for the four ideal functions
+
     try:
         list_idealfct_dict, mapping_criterion_dict = get_ideal_functions(df_train, df_ideal)
     except:
@@ -305,7 +331,6 @@ def main():
         print(exception_info)
     finally:
         pass
-
     print("Finished task :)")
 
 if __name__ == '__main__':
